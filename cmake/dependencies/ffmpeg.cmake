@@ -25,40 +25,43 @@ SET(_download_hash
 SET(_install_dir
     ${RV_DEPS_BASE_DIR}/${_target}/install
 )
+IF(RV_DISABLED_DECODERS)
+  LIST(APPEND _disabled_decoders ${RV_DISABLED_DECODERS})
+ELSE()
+  LIST(APPEND _disabled_decoders "--disable-decoder=bink")
+  LIST(APPEND _disabled_decoders "--disable-decoder=binkaudio_dct")
+  LIST(APPEND _disabled_decoders "--disable-decoder=binkaudio_rdft")
+  LIST(APPEND _disabled_decoders "--disable-decoder=vp9")
+  LIST(APPEND _disabled_decoders "--disable-decoder=vp9_cuvid")
+  LIST(APPEND _disabled_decoders "--disable-decoder=vp9_mediacodec")
+  LIST(APPEND _disabled_decoders "--disable-decoder=vp9_qsv")
+  LIST(APPEND _disabled_decoders "--disable-decoder=vp9_rkmpp")
+  LIST(APPEND _disabled_decoders "--disable-decoder=vp9_v4l2m2m")
+  LIST(APPEND _disabled_decoders "--disable-decoder=dnxhd")
+  LIST(APPEND _disabled_decoders "--disable-decoder=prores")
+  LIST(APPEND _disabled_decoders "--disable-decoder=qtrle")
+  LIST(APPEND _disabled_decoders "--disable-decoder=aac")
+  LIST(APPEND _disabled_decoders "--disable-decoder=aac_fixed")
+  LIST(APPEND _disabled_decoders "--disable-decoder=aac_latm")
+  LIST(APPEND _disabled_decoders "--disable-decoder=dvvideo")
 
-LIST(APPEND _disabled_decoders "--disable-decoder=bink")
-LIST(APPEND _disabled_decoders "--disable-decoder=binkaudio_dct")
-LIST(APPEND _disabled_decoders "--disable-decoder=binkaudio_rdft")
-LIST(APPEND _disabled_decoders "--disable-decoder=vp9")
-LIST(APPEND _disabled_decoders "--disable-decoder=vp9_cuvid")
-LIST(APPEND _disabled_decoders "--disable-decoder=vp9_mediacodec")
-LIST(APPEND _disabled_decoders "--disable-decoder=vp9_qsv")
-LIST(APPEND _disabled_decoders "--disable-decoder=vp9_rkmpp")
-LIST(APPEND _disabled_decoders "--disable-decoder=vp9_v4l2m2m")
-LIST(APPEND _disabled_decoders "--disable-decoder=dnxhd")
-LIST(APPEND _disabled_decoders "--disable-decoder=prores")
-LIST(APPEND _disabled_decoders "--disable-decoder=qtrle")
-LIST(APPEND _disabled_decoders "--disable-decoder=aac")
-LIST(APPEND _disabled_decoders "--disable-decoder=aac_fixed")
-LIST(APPEND _disabled_decoders "--disable-decoder=aac_latm")
-LIST(APPEND _disabled_decoders "--disable-decoder=dvvideo")
+  LIST(APPEND _disabled_encoders "--disable-encoder=dnxhd")
+  LIST(APPEND _disabled_encoders "--disable-encoder=prores")
+  LIST(APPEND _disabled_encoders "--disable-encoder=qtrle")
+  LIST(APPEND _disabled_encoders "--disable-encoder=aac")
+  LIST(APPEND _disabled_encoders "--disable-encoder=aac_mf")
+  LIST(APPEND _disabled_encoders "--disable-encoder=vp9_qsv")
+  LIST(APPEND _disabled_encoders "--disable-encoder=vp9_vaapi")
+  LIST(APPEND _disabled_decoders "--disable-encoder=dvvideo") # HUH
 
-LIST(APPEND _disabled_encoders "--disable-encoder=dnxhd")
-LIST(APPEND _disabled_encoders "--disable-encoder=prores")
-LIST(APPEND _disabled_encoders "--disable-encoder=qtrle")
-LIST(APPEND _disabled_encoders "--disable-encoder=aac")
-LIST(APPEND _disabled_encoders "--disable-encoder=aac_mf")
-LIST(APPEND _disabled_encoders "--disable-encoder=vp9_qsv")
-LIST(APPEND _disabled_encoders "--disable-encoder=vp9_vaapi")
-LIST(APPEND _disabled_decoders "--disable-encoder=dvvideo")
+  LIST(APPEND _disabled_parsers "--disable-parser=vp9")
 
-LIST(APPEND _disabled_parsers "--disable-parser=vp9")
+  LIST(APPEND _disabled_filters "--disable-filter=geq")
 
-LIST(APPEND _disabled_filters "--disable-filter=geq")
-
-LIST(APPEND _disabled_protocols "--disable-protocol=ffrtmpcrypt")
-LIST(APPEND _disabled_protocols "--disable-protocol=rtmpe")
-LIST(APPEND _disabled_protocols "--disable-protocol=rtmpte")
+  LIST(APPEND _disabled_protocols "--disable-protocol=ffrtmpcrypt")
+  LIST(APPEND _disabled_protocols "--disable-protocol=rtmpe")
+  LIST(APPEND _disabled_protocols "--disable-protocol=rtmpte")
+ENDIF()
 
 SET(_make_command
     make
@@ -208,6 +211,15 @@ IF(RV_TARGET_WINDOWS)
     ${_target} copy_implibs
     COMMAND ${CMAKE_COMMAND} -E copy ${RV_DEPS_OPENSSL_LIB_DIR}/libssl.lib ${RV_DEPS_OPENSSL_LIB_DIR}/ssl.lib
     COMMAND ${CMAKE_COMMAND} -E copy ${RV_DEPS_OPENSSL_LIB_DIR}/libcrypto.lib ${RV_DEPS_OPENSSL_LIB_DIR}/crypto.lib
+    DEPENDERS configure
+  )
+ENDIF()
+
+IF(RV_DISABLED_DECODERS)
+  EXTERNALPROJECT_ADD_STEP(
+    ${_target} COMMAND
+    ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../src/lib/MovieAPR/AppleProRes.cpp ${RV_DEPS_BASE_DIR}/${_target}/src/libavcodec/proresdec2.c
+    # COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../src/lib/MovieAPR/AppleProRes.h ${RV_DEPS_BASE_DIR}/${_target}/src/libavcodec/proresdec.h
     DEPENDERS configure
   )
 ENDIF()
