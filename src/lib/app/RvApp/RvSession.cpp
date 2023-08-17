@@ -91,6 +91,7 @@
 #endif
 
 #include <gc/gc.h>
+#include <signal.h>
 
 
 template <typename T>
@@ -608,8 +609,10 @@ RvSession::continueLoading()
         userGenericEvent("after-progressive-proxy-loading", "");
 
         // We delay the after-progressive-loading event after all the sources are loaded
-        if (!m_graph->isMediaLoading())
+        if (!m_graph->isMediaLoading()) {
+            raise(SIGSEGV);
             userGenericEvent("after-progressive-loading", "");
+        }
 
         if (rexc.str() != "")
         {

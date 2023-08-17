@@ -54,6 +54,7 @@
 #include <sstream>
 #include <thread>
 #include <signal.h>
+#include <execinfo.h>
 #include <stdlib.h>
 #include <stl_ext/thread_group.h>
 #include <string.h>
@@ -92,6 +93,25 @@ extern const char* TweakDark;
 static void control_c_handler(int sig)
 {
     cout << "INFO: stopped by user" << endl;
+    exit(1);
+}
+
+static void seg_fault_handler(int sig)
+{
+    cout << "ERROR: segmentation violation" << endl;
+
+    void* backtrace_array[50];
+    int size = backtrace(backtrace_array, 50);
+
+    char** bt_messages = backtrace_symbols(backtrace_array, size);
+
+    for(int i = 1; i < size && bt_messages != nullptr; ++i) {
+        cerr << "ERROR: " << bt_messages[i] << endl;
+    }
+
+    free(bt_messages);
+
+    // Rv::RvApp()->console()->fileLogger().dump();
     exit(1);
 }
 
@@ -680,6 +700,11 @@ int main(int argc, char *argv[])
     if (signal(SIGINT, control_c_handler) == SIG_ERR)
     {
         cout << "ERROR: failed to install SIGINT signal handler" << endl;
+    }
+
+    if(signal(SIGSEGV, seg_fault_handler) == SIG_ERR)
+    {
+        cout <<  "ERROR: failed to install SIGSEGV signal handler" << endl;
     }
 
     TwkUtil::setThreadName("RV Main");

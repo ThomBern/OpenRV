@@ -36,6 +36,8 @@ namespace TwkUtil {
 
         setLogLevel(evFileLogLevel.getValue());
 
+        // m_logger->enable_backtrace(50);
+
         m_logger->info("============ SESSION START ============");
     }
 
@@ -54,6 +56,11 @@ namespace TwkUtil {
             case spdlog::level::warn: m_logger->warn(line); break;
             case spdlog::level::err: m_logger->error(line); break;
         }
+    }
+
+    void FileLogger::dump()
+    {
+        m_logger->dump_backtrace();
     }
 
     void FileLogger::setLogLevel(const std::string& level)

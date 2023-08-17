@@ -46,6 +46,8 @@ public:
 
     QTextEdit* textEdit() const { return m_ui.textEdit; }
 
+    TwkUtil::FileLogger fileLogger() const { return m_fileLogger; }
+
     void appendLine(const std::string&);
     bool processLine(std::string&, QString& html);
     bool processAndDisplayLine(std::string&);

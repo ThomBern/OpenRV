@@ -142,6 +142,13 @@ static void control_c_handler(int sig)
 }
 #endif
 
+static void seg_fault_handler(int sig)
+{
+    cout << "ERROR: segmentation violation" << endl;
+    // RvApp()->console()->fileLogger().dump();
+    exit(1);
+}
+
 void setEnvVar(const string& var, const string& val)
 {
 #ifdef WIN32
@@ -762,6 +769,11 @@ utf8Main(int argc, char *argv[])
         cout << "ERROR: failed to install SIGINT signal handler" << endl;
     }
 #endif
+
+    if(signal(SIGSEGV, seg_fault_handler) == SIG_ERR)
+    {
+        cout <<  "ERROR: failed to install SIGSEGV signal handler" << endl;
+    }
 
     TwkUtil::setThreadName("RV Main");
 

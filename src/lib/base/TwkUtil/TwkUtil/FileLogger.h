@@ -24,6 +24,7 @@ public:
     ~FileLogger();
 
     void logToFile(spdlog::level::level_enum lineLevel, std::string& line);
+    void dump();
 private:
     spdlog::logger*             m_logger;
 
